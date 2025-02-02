@@ -83,7 +83,6 @@ int main(void) {
 		"88005553535\n"
 		"he is cool\n"
 		"\n"
-		"\n"
 		"Enter your command:\n"
 		"> First name:\n"
 		"> Last name:\n"
@@ -116,7 +115,6 @@ int main(void) {
 		"+31415926\n"
 		"he is even cooler\n"
 		"\n"
-		"\n"
 		"Enter your command:\n> ";
 	TestCase tests[SZ] = {
 		TestCase(34, test1, exp1)
@@ -148,8 +146,8 @@ int main(void) {
 			while (firstDiff < tests[i].m_exp.length() 
 				&& tests[i].m_exp[firstDiff] == act[firstDiff]) firstDiff ++;
 			cout << "outputs different starting from " << firstDiff << ": expected ["
-				<< tests[i].m_exp.substr(firstDiff) << "], actual ["
-				<< act.substr(firstDiff) << "]" << endl;
+				<< tests[i].m_exp.substr(firstDiff, 20) << "], actual ["
+				<< act.substr(firstDiff, 20) << "]" << endl;
 		}
 		#endif
 		assert(0 == act.compare(tests[i].m_exp));

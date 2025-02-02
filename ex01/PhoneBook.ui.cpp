@@ -38,7 +38,7 @@ int PhoneBook::search() {
 		}
 		break ;
 	}
-	cout << m_contacts[choice].toString(Contact::FLNPS_SEP_LINES) << endl;
+	cout << m_contacts[choice].toString(Contact::FLNPS_SEP_LINES);
 	return (0);
 }
 
