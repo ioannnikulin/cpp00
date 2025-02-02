@@ -53,9 +53,73 @@ int main(void) {
 		, "SEARCH", "1"
 		, "EXIT"
 	};
-	const string exp1 = "";
+	const string exp1 = "\nEnter your command:\n"
+		">      index|first name| last name|  nickname|\n"
+		"\n"
+		"Enter your command:\n"
+		"> \n"
+		"Enter your command:\n"
+		"> \n"
+		"Enter your command:\n"
+		"> \n"
+		"Enter your command:\n"
+		"> First name:\n"
+		"> Last name:\n"
+		"> Nickname:\n"
+		"> Phone number:\n"
+		"> Darkest secret:\n"
+		"> \n"
+		"Enter your command:\n"
+		">      index|first name| last name|  nickname|\n"
+		"         0|    andrew|andrewsson|  triple a|\n"
+		"Please select an entry:\n"
+		"> Entry not found, please try again\n"
+		"> Entry not found, please try again\n"
+		"> Entry not found, please try again\n"
+		"> Entry not found, please try again\n"
+		"> andrew\n"
+		"andrewsson\n"
+		"triple a\n"
+		"88005553535\n"
+		"he is cool\n"
+		"\n"
+		"\n"
+		"Enter your command:\n"
+		"> First name:\n"
+		"> Last name:\n"
+		"> Field cannot be empty\n"
+		"Last name:\n"
+		"> Field cannot be empty\n"
+		"Last name:\n"
+		"> Nickname:\n"
+		"> Phone number:\n"
+		"> Darkest secret:\n"
+		"> \n"
+		"Enter your command:\n"
+		"> First name:\n"
+		"> Last name:\n"
+		"> Nickname:\n"
+		"> Phone number:\n"
+		"> Field cannot be empty\n"
+		"Phone number:\n"
+		"> Darkest secret:\n"
+		"> \n"
+		"Enter your command:\n"
+		">      index|first name| last name|  nickname|\n"
+		"         0|    andrew|andrewsson|  triple a|\n"
+		"         1|     bjorn| bjornsson|      bibi|\n"
+		"         2|     bjorn| bjornsson|      bibi|\n"
+		"Please select an entry:\n"
+		"> bjorn\n"
+		"bjornsson\n"
+		"bibi\n"
+		"+31415926\n"
+		"he is even cooler\n"
+		"\n"
+		"\n"
+		"Enter your command:\n> ";
 	TestCase tests[SZ] = {
-		TestCase(33, test1, exp1)
+		TestCase(34, test1, exp1)
 	};
 
 	stringstream ss;
@@ -80,7 +144,12 @@ int main(void) {
 		string act = out.str();
 		#ifdef DEBUG
 		if (0 != act.compare(tests[i].m_exp)) {
-			cout << "expected: [" << tests[i].m_exp << "], actual [" << act << "]";
+			size_t firstDiff = 0;
+			while (firstDiff < tests[i].m_exp.length() 
+				&& tests[i].m_exp[firstDiff] == act[firstDiff]) firstDiff ++;
+			cout << "outputs different starting from " << firstDiff << ": expected ["
+				<< tests[i].m_exp.substr(firstDiff) << "], actual ["
+				<< act.substr(firstDiff) << "]" << endl;
 		}
 		#endif
 		assert(0 == act.compare(tests[i].m_exp));
