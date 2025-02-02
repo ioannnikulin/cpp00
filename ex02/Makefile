@@ -1,3 +1,47 @@
+COMPILER = c++
+NAME_TARGET = ledger
+COMPILE_FLAGS = -Wall -Wextra -Werror -g -c -std=c++98
+LINK_FLAGS = 
+PREFIX = 
+
+SRC_NAMES = \
+	Account.cpp \
+	tests.cpp
+
+SRC_OBJS = $(SRC_NAMES:.cpp=.o)
+
+all: $(NAME_TARGET)
+
+$(NAME_TARGET): $(SRC_OBJS)
+	$(PREFIX)$(COMPILER) $(SRC_OBJS) -o $(NAME_TARGET) $(LINK_FLAGS)
+
+%.o: %.cpp
+	$(PREFIX)$(COMPILER) $(COMPILE_FLAGS) $< -o $@ $(INCLUDES) $(PREPROC_DEFINES)
+
+clean:
+	$(PREFIX)rm -f $(SRC_OBJS)
+
+fclean: clean
+	$(PREFIX)rm -f $(NAME_TARGET)
+
+export REFERENCE
+test: $(NAME_TARGET)
+	$(PREFIX)bash -c 'valgrind --leak-check=full --show-leak-kinds=all -s -q ./$(NAME_TARGET)' 1>/dev/null
+	$(PREFIX)rm -f act.txt exp.txt
+	$(PREFIX)echo "$$REFERENCE" > exp.txt
+	$(PREFIX)./$(NAME_TARGET) > act.txt
+	$(PREFIX)cut -c 18- exp.txt > exp.notime
+	$(PREFIX)cut -c 18- act.txt > act.notime
+	$(PREFIX)diff exp.notime act.notime
+	$(PREFIX)rm -f act.txt exp.txt act.notime exp.notime
+
+re: fclean all
+
+retest: fclean test
+
+PHONY: all pre clean fclean re test
+
+define REFERENCE
 [19920104_091532] index:0;amount:42;created
 [19920104_091532] index:1;amount:54;created
 [19920104_091532] index:2;amount:957;created
@@ -57,3 +101,4 @@
 [19920104_091532] index:5;amount:23;closed
 [19920104_091532] index:6;amount:106;closed
 [19920104_091532] index:7;amount:8942;closed
+endef
