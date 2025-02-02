@@ -2,40 +2,80 @@
 # define CONTACT_HPP
 
 # include <iostream>
-# include <string.h>
-# include <stdlib.h>
 
+using std::cerr;
 using std::cin;
 using std::cout;
-using std::cerr;
 using std::endl;
+using std::istream;
+using std::ostream;
 using std::string;
+using std::stringstream;
+
+# ifdef _WIN32
+    const std::string NEWLINE = "\r\n";
+# else
+    const std::string NEWLINE = "\n";
+# endif
 
 class Contact {
 private:
-	string m_f_name;
-	string m_l_name;
-	string m_nick_name;
-	string m_phone_no;
+	string m_fName;
+	string m_lName;
+	string m_nickName;
+	string m_phoneNo;
 	string m_secret;
 
-public:
-	Contact();
+	class ToStringMode {
+	private:
+		int m_selection;
+		int m_width;
+		string m_terminator;
+		string m_separator;
+
+		ToStringMode();
+		ToStringMode(const ToStringMode &other);
+		ToStringMode &operator=(const ToStringMode &other);
+	public:
+		static const int F_NAME;
+		static const int L_NAME;
+		static const int NICK_NAME;
+		static const int PHONE_NO;
+		static const int SECRET;
+
+		int getSelection() const;
+		int getWidth() const;
+		string getTerminator() const;
+		string getSeparator() const;
+		ToStringMode(int selection, int width, string terminator, string separator);
+		~ToStringMode();
+	};
+	int processField(
+		stringstream &ss
+		, const string &field
+		, const int &selector
+		, int &selection
+		, const ToStringMode &mode
+	) const;
+
 	Contact(
-		string f_name
-		, string l_name
-		, string nick_name
-		, string phone_no
+		string fName
+		, string lName
+		, string nickName
+		, string phoneNo
 		, string secret
 	);
 	Contact(const Contact &other);
-	Contact &operator=(const Contact &other);
-	Contact(Contact &&other) noexcept;
-	Contact &operator=(Contact &&other) noexcept;
+public:
+	Contact();
 	~Contact();
+	Contact &operator=(const Contact &other);
+	Contact(istream &ifs, ostream &ofs);
 
-	
-	string toString(int mode = FULL);
+	static const ToStringMode FLN_PIPE_10;
+	static const ToStringMode FLNPS_SEP_LINES;
+
+	string toString(const ToStringMode &mode) const;
 };
 
 #endif

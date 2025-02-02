@@ -2,8 +2,8 @@
 # define PHONEBOOK_HPP
 
 # include <iostream>
-# include <string.h>
 # include <stdlib.h>
+# include <string.h>
 
 # include "Contact.hpp"
 
@@ -12,22 +12,26 @@ using std::cout;
 using std::cerr;
 using std::endl;
 
+# define MAX_CONTACTS 8
+
 class Contact;
 
 class PhoneBook {
 private:
-	int	cur_contact;
-	Contact	contacts[8];
+	int	m_curContact;
+	int m_addedContacts;
+	Contact	m_contacts[MAX_CONTACTS];
 
-public:
-	PhoneBook();
 	PhoneBook(const PhoneBook &other);
 	PhoneBook &operator=(const PhoneBook &other);
-	PhoneBook(const PhoneBook &&other) noexcept;
-	PhoneBook &operator=(const PhoneBook &&other) noexcept;
 
-	int add_interactive();
+	int addInteractive();
 	int search();
-}
+public:
+	PhoneBook();
+	~PhoneBook();
+
+	int operate();
+};
 
 #endif

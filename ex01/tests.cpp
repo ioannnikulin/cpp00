@@ -1,109 +1,89 @@
+#include <cassert>
 #include <iostream>
+#include <fstream>
+#include <sstream>
+#include <stdlib.h>
 #include <string.h>
 
+#include "PhoneBook.hpp"
+
+using std::cerr;
 using std::cin;
 using std::cout;
-using std::cerr;
 using std::endl;
-
-#ifndef TEST
-
-int main(int argc, char *argv[])
-{
-	if (1 == argc) {
-		cout << "* LOUD AND UNBEARABLE FEEDBACK NOISE *" << endl;
-		return (0);
-	}
-	for (int i = 1; i < argc; i++) {
-		int l = strlen(argv[i]);
-		for (int j = 0; j < l; j++) {
-			cout << (char)toupper(argv[i][j]);
-		}
-	}
-	cout << endl;
-}
-
-#else // =======================================================================
-
-#include <sstream>
-#include <fstream>
-#include <stdlib.h>
-#include <cassert>
-
-#define DEBUG
-
-#define SZ 3
-
-using std::ifstream;
+using std::streambuf;
 using std::string;
 using std::stringstream;
 
+#define DEBUG
+
+#define SZ 1
+
 class TestCase {
-	public:
-	int m_src_sz;
-	string *m_src_strs;
+public:
+	int m_inputs_qtty;
+	string *m_inputs;
 	string m_exp;
 
-	TestCase(int p_src_sz, const string p_src_strs[], string p_exp)
-		: m_src_sz(p_src_sz), m_exp(p_exp) {
+	TestCase(int inputs_qtty, const string inputs[], const string exp)
+		: m_inputs_qtty(inputs_qtty), m_exp(exp) {
 		try {
-			m_src_strs = new string[p_src_sz];
+			m_inputs = new string[inputs_qtty];
 		} catch (const std::bad_alloc &e) {
 			cerr << "allocation failed" << endl;
 			exit(EXIT_FAILURE);
 		}
-		for (int i = 0; i < p_src_sz; i ++) {
-			m_src_strs[i] = p_src_strs[i];
+		for (int i = 0; i < inputs_qtty; i ++) {
+			m_inputs[i] = inputs[i];
 		}
 	}
 
 	~TestCase() {
-		delete[] m_src_strs;
+		delete[] m_inputs;
 	}
 };
 
 int main(void) {
-	const string test1[] = {"shhhhh... I think the students are asleep..."};
-	const string test2[] = {"Damnit", " ! ", "Sorry students, I thought this thing was off."};
-	const string test3[] = {};
+	const string test1[] = {
+		"SEARCH", "0", "qwe", ""
+		, "ADD", "andrew", "andrewsson", "triple a", "88005553535", "he is cool"
+		, "SEARCH", "1", "", "-2", "qwe", "0"
+		, "ADD", "bjorn", "", "", "bjornsson", "bibi", "+31415926", "he is even cooler"
+		, "ADD", "bjorn", "bjornsson", "bibi", "", "+31415926", "he is even cooler"
+		, "SEARCH", "1"
+		, "EXIT"
+	};
+	const string exp1 = "";
 	TestCase tests[SZ] = {
-		TestCase(1, test1, "SHHHHH... I THINK THE STUDENTS ARE ASLEEP...\n")
-		, TestCase(3, test2, "DAMNIT ! SORRY STUDENTS, I THOUGHT THIS THING WAS OFF.\n")
-		, TestCase(0, test3, "* LOUD AND UNBEARABLE FEEDBACK NOISE *\n")
+		TestCase(33, test1, exp1)
 	};
 
 	stringstream ss;
-	ifstream ifs;
 	for (int i = 0; i < SZ; i++) {
 		#ifdef DEBUG
 		cout << "#" << i << endl;
 		#endif
-		ss << "rm -f out.txt err.txt && bash -c 'valgrind --leak-check=full --show-leak-kinds=all ./megaphone";
-		for (int j = 0; j < tests[i].m_src_sz; j++) {
-			ss << " \"" << tests[i].m_src_strs[j] << "\"";
-		}
-		ss << "' 1> out.txt 2> err.txt";
-		assert(0 == system(ss.str().c_str()));
-		ss.str("");
 
-		ifs.open("out.txt");
-		assert(ifs.is_open());
-		ss << ifs.rdbuf();
-		ifs.close();
-		#ifdef DEBUG
-		if (0 != ss.str().compare(tests[i].m_exp))
-			cout << "expected {" << tests[i].m_exp << "}" << endl << "got {" << ss.str() << "}" << endl;
-		#endif
-		assert(0 == ss.str().compare(tests[i].m_exp));
-		ss.str("");
+		stringstream in;
+		stringstream out;
+		for (int j = 0; j < tests[i].m_inputs_qtty; j ++) {
+			in << tests[i].m_inputs[j] << endl;
+		}
+		streambuf *orig_cin = cin.rdbuf(in.rdbuf());
+		streambuf *orig_cout = cout.rdbuf(out.rdbuf());
+
+		PhoneBook book;
+		book.operate();
 		
-		ifs.open("err.txt");
-		ss << ifs.rdbuf();
-		ifs.close();
-		assert(string::npos != ss.str().find("ERROR SUMMARY: 0 errors from 0 contexts (suppressed: 0 from 0)"));
-		ss.str("");
+		cin.rdbuf(orig_cin);
+		cout.rdbuf(orig_cout);
+		string act = out.str();
+		#ifdef DEBUG
+		if (0 != act.compare(tests[i].m_exp)) {
+			cout << "expected: [" << tests[i].m_exp << "], actual [" << act << "]";
+		}
+		#endif
+		assert(0 == act.compare(tests[i].m_exp));
 	}
 	return (0);
 }
-
-#endif
